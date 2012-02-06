@@ -1,0 +1,14 @@
+#### `.gitignore`
+
+# SVN directories
+.svn
+
+# Flex Builder noise
+.actionScriptProperties
+.flexProperties
+.flexLibProperties
+.project
+.settings
+/asdoc
+/bin-debug
+/tempDoc

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<project name="gdp" default="main" basedir="..">
+	<echo message="FLEX_HOME: ${FLEX_HOME}" />
+	<taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}/ant/lib/flexTasks.jar" />
+	
+	<target name="main" depends="swcdoc, asdoc, clean-temp-docs" description="Clean build of ${ant.project.name}.swc">
+	</target>
+	
+	<target name="clean" depends="">
+		<echo message="clean ${ant.project.name}.swc" />
+		<delete failonerror="false">
+			<fileset dir="${basedir}/bin">
+				<include name="${ant.project.name}.swc"/>
+			</fileset>
+		</delete>
+	</target>
+
+	<target name="clean-temp-docs">
+		<echo message="clean tempDoc" />
+		<delete dir="${basedir}/tempDoc" failonerror="false" includeEmptyDirs="true"/>
+	</target>
+
+	<target name="compile" depends="" description="Compile SWC">
+		<echo message="Compiling ${ant.project.name}.swc"/>
+		<compc fork="true" output="${basedir}/bin/${ant.project.name}.swc">
+		    <source-path path-element="${basedir}/src"/>
+		    <include-sources dir="${basedir}/src" includes="**/*.as **/*.mxml"/>
+		</compc>
+	</target>
+
+	<target name="swcdoc" depends="clean, compile" description="Updates SWC with ASDoc XML">
+		<echo message="Compiling ASDoc for ${ant.project.name}.swc"/>
+		<!-- Call asdoc to generate dita xml files -->
+		<asdoc output="${basedir}/tempDoc" lenient="true" failonerror="true" keep-xml="true" skip-xsl="true" fork="true">
+		    <compiler.source-path path-element="${basedir}/src"/>
+			<doc-sources path-element="${basedir}/src"/>
+		</asdoc>
+		
+		<!-- updates swc with asdoc xml -->
+		<zip destfile="${basedir}/bin/${ant.project.name}.swc" update="true">
+		    <zipfileset dir="${basedir}/tempDoc/tempdita" prefix="docs">
+			    <include name="*.*"/>
+				<exclude name="ASDoc_Config.xml"/>
+				<exclude name="overviews.xml"/>
+		    </zipfileset>
+		</zip>
+	</target>
+	
+	<target name="asdoc" >
+		<echo message="Generating ASDoc" />
+        <exec executable="${FLEX_HOME}/bin/asdoc.exe" failonerror="true">
+            <arg line="-source-path '${basedir}/src'" />
+            <arg line="-doc-sources '${basedir}/src'" />
+            <arg line="-library-path '${FLEX_HOME}/frameworks/libs'" />
+            <arg line="-main-title '$ASDOC Title'" />
+            <arg line="-window-title 'Window Title'" />
+            <arg line="-output '${basedir}/asdoc'" />
+        </exec>
+    </target>
+
+</project>
+
+
