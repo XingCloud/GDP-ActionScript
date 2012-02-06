@@ -16,7 +16,7 @@ package com.xingcloud.gdp
 		
 		private static var _instance:GDP = new GDP() ; //for appLoaded notice
 		/**
-		 * GDP实例，可以通过该静态实例，获取平台属性和服务。
+		 * GDP实例，可以通过该静态实例，获取平台服务。
 		 * @see #callService()
 		 */
 		public static function get instance():GDP
@@ -40,7 +40,7 @@ package com.xingcloud.gdp
 		
 		/**
 		 * GDP初始化。
-		 * @param stage Flash的舞台引用
+		 * @param stage - Stage 当前应用的舞台
 		 * @throws Error param "stage" must not be null!
 		 * @throws Error game's parameters info missing!
 		 */
@@ -56,8 +56,7 @@ package com.xingcloud.gdp
 		}
 		
 		/**
-		 * 通过<code> GDP.instance.callService() </code>获取平台提供的各种服务
-		 * （需先初始化 <code>GDP.instance.init(stage) </code>），示例如：
+		 * 通过<code> GDP.instance.callService() </code>获取平台提供的各种服务，示例如：
 		 * <ul>
 		 * <li>用户信息 <code>callService("get_user", null, onGetUser);</code></li>
 		 * <li>游戏好友 <code>callService("get_friends", {type:"all"}, onGetFriends);</code></li>
