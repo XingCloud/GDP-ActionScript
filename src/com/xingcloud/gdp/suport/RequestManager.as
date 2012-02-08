@@ -1,10 +1,21 @@
 package com.xingcloud.gdp.suport
 {
+	import flash.display.Bitmap;
+	import flash.display.BitmapData;
+	import flash.display.DisplayObject;
+	import flash.display.Loader;
+	import flash.display.Sprite;
 	import flash.display.Stage;
+	import flash.errors.IOError;
 	import flash.events.AsyncErrorEvent;
+	import flash.events.Event;
+	import flash.events.IOErrorEvent;
 	import flash.events.SecurityErrorEvent;
 	import flash.events.StatusEvent;
 	import flash.net.LocalConnection;
+	import flash.net.URLRequest;
+	import flash.system.ApplicationDomain;
+	import flash.system.LoaderContext;
 	import flash.system.Security;
 	
 	/**
@@ -13,7 +24,7 @@ package com.xingcloud.gdp.suport
 	 */
 	public class RequestManager
 	{
-		private const DEBUG:Boolean = false ;
+		private const DEBUG:Boolean = true ;
 		private const API_BRIDGE:String = "clientCallBridge";
 		private const SDK_BRIDGE:String = "_sdkBridge";
 		private const SDK_CLIENT:String = "_sdkClient";
@@ -27,6 +38,7 @@ package com.xingcloud.gdp.suport
 		private var _allService:Array = [] ;
 		private var _allCallBack:Array = [] ;
 		private var _stage:Stage;
+		private var _service:*;
 		
 		/**
 		 * 请开发者直接使用 <code>GDP.instance</code> 来使用行云GDP服务。 

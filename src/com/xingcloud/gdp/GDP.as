@@ -1,8 +1,14 @@
 package com.xingcloud.gdp
 {
-	import com.xingcloud.gdp.suport.RequestManager;
-	
-	import flash.display.Stage;
+	import flash.display.Loader;
+	import flash.display.Sprite;
+	import flash.events.ErrorEvent;
+	import flash.events.Event;
+	import flash.events.IOErrorEvent;
+	import flash.events.SecurityErrorEvent;
+	import flash.net.URLRequest;
+	import flash.system.ApplicationDomain;
+	import flash.system.LoaderContext;
 	
 	/**
 	 * GDP是Global Distribution Platform的缩写，GDP类是行云GDP核心接口，通过静态实例的 <code>callService</code> 方法来获取平台服务。如获取好友信息：</br>
@@ -12,9 +18,10 @@ package com.xingcloud.gdp
 	 */
 	public class GDP
 	{
-		private var _requestManager:RequestManager ;
-		
 		private static var _instance:GDP = new GDP() ; //for appLoaded notice
+		private var _service:* ;
+		private var _stockService:Array = [] ;
+		private var _main:Sprite;
 		/**
 		 * GDP实例，可以通过该静态实例，获取平台服务。
 		 * @see #callService()
@@ -40,20 +47,55 @@ package com.xingcloud.gdp
 		
 		/**
 		 * GDP初始化。
-		 * @param stage - Stage 当前应用的舞台
-		 * @throws Error param "stage" must not be null!
-		 * @throws Error game's parameters info missing!
+		 * @param main - Sprite or MovieClip 当前应用的主类
+		 * @throws Error GDP: param "main" is null or has nonstage!
 		 */
-		public function init(stage:Stage):void
+		public function init(main:Sprite):void
 		{
-			if(stage == null)
-				throw new Error("GDP: init param stage must not be null!") ;
+			if(_main) return ; // 多次调用，聪耳不闻
+			if(main == null || main.stage == null)
+				throw new Error("GDP: param main is null or has nonstage!") ;
 			
-			if(_requestManager == null)
-				_requestManager = new RequestManager(stage, "_sdkClient") ;
-			else
-				trace("GDP: inited.");
+			_main = main ;
+			
+			try
+			{
+				var loader:Loader = new Loader();
+				loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onServiceLoaded);
+				loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, onServiceLoadError);
+				loader.contentLoaderInfo.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onServiceLoadError);
+				var context:LoaderContext = new LoaderContext(false);
+				context.applicationDomain = ApplicationDomain.currentDomain;
+				var sComponentUrl:String = "GDPService.swf";
+				loader.load(new URLRequest(sComponentUrl), context);
+			} 
+			catch(error:Error) 
+			{
+				trace("GDP: load GDPService Error: " + error) ;
+			}
 		}
+		
+		private function onServiceLoadError(error:ErrorEvent):void
+		{
+			trace("GDP: load GDPService Error: " + error) ;
+		}
+		
+		private function onServiceLoaded(event:Event):void
+		{
+			trace("GDP: load GDPService complete.") ;
+			
+			_service = event.target.content ;
+			_service.init(_main) ;
+			
+			if(_stockService.length > 0)
+			{
+				for each (var service:Object in _stockService) 
+				{
+					callService(service.serviceName, service.params, service.callBack) ;
+				}
+			}
+		}
+		
 		
 		/**
 		 * 通过<code> GDP.instance.callService() </code>获取平台提供的各种服务，示例如：
@@ -73,7 +115,7 @@ package com.xingcloud.gdp
 		 * @param params - Object 服务所相关的参数，如 <code>{type="app"}</code>
 		 * @param callBack - Function 服务返回的处理方法，如 <code>function onGetFriends(response:Object):void{ }</code>
 		 * @throws Error serviceName can not be null or ""
-		 * @throws Error Please initialize GDP by GDP.instance.init(stage)
+		 * @throws Error Please initialize GDP by GDP.instance.init(this)
 		 * @see http://doc.xingcloud.com/pages/viewpage.action?pageId=4195455 行云GDP在线文档
 		 */
 		public function callService(serviceName:String, params:Object = null, callBack:Function = null):void 
@@ -81,13 +123,16 @@ package com.xingcloud.gdp
 			if (serviceName == null || serviceName.length < 1)
 				throw new Error("GDP: serviceName can not be null or \"\"") ;
 			
-			if (_requestManager == null)
-				throw new Error("GDP: Please initialize GDP by GDP.instance.init(stage)");
+			if (_main == null)
+				throw new Error("GDP: Please initialize GDP by GDP.instance.init(this)");
 			
 			if (params == null) params = {} ;
 			if (callBack == null) callBack = new Function() ;
 			
-			_requestManager.addServiceRequest(serviceName, params, callBack) ;
+			if(_service)
+				_service.callService(serviceName, params, callBack) ;
+			else
+				_stockService.push({serviceName:serviceName, params:params, callBack:callBack}) ;
 		}
 	}
 }
