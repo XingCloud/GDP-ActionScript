@@ -58,16 +58,18 @@ package com.xingcloud.gdp
 			
 			_main = main ;
 			
+			var gdpServiceUrl:String = _main.stage.loaderInfo.parameters["xc_gdp_service"] ;
+			var request:URLRequest = new URLRequest(gdpServiceUrl) ;
+			var loader:Loader = new Loader();
+			loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onServiceLoaded);
+			loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, onServiceLoadError);
+			loader.contentLoaderInfo.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onServiceLoadError);
+			var context:LoaderContext = new LoaderContext(false);
+			context.applicationDomain = ApplicationDomain.currentDomain;
+			
 			try
 			{
-				var loader:Loader = new Loader();
-				loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onServiceLoaded);
-				loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, onServiceLoadError);
-				loader.contentLoaderInfo.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onServiceLoadError);
-				var context:LoaderContext = new LoaderContext(false);
-				context.applicationDomain = ApplicationDomain.currentDomain;
-				var sComponentUrl:String = "GDPService.swf";
-				loader.load(new URLRequest(sComponentUrl), context);
+				loader.load(request, context);
 			} 
 			catch(error:Error) 
 			{
