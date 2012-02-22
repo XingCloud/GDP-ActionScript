@@ -19,9 +19,9 @@ package com.xingcloud.gdp
 	public class GDP
 	{
 		private static var _instance:GDP = new GDP() ; //for appLoaded notice
-		private var _service:* ;
+		private var _main:Sprite = null ;
+		private var _service:* = null ;
 		private var _stockService:Array = [] ;
-		private var _main:Sprite;
 		/**
 		 * GDP实例，可以通过该静态实例，获取平台服务。
 		 * @see #callService()
@@ -40,9 +40,7 @@ package com.xingcloud.gdp
 		public function GDP():void
 		{
 			if (_instance)
-			{
 				throw new Error("GDP: Please access by GDP.instance!");
-			}
 		}
 		
 		/**
@@ -69,6 +67,7 @@ package com.xingcloud.gdp
 			
 			try
 			{
+				trace("GDP: swc120222 load GDPService.") ;
 				loader.load(request, context);
 			} 
 			catch(error:Error) 
@@ -115,7 +114,7 @@ package com.xingcloud.gdp
 		 * 下面参数介绍以获取用户好友信息为例。
 		 * @param serviceName - String 服务名称，如 <code>"get_friends"</code> 
 		 * @param params - Object 服务所相关的参数，如 <code>{type="app"}</code>
-		 * @param callBack - Function 服务返回的处理方法，如 <code>function onGetFriends(response:Object):void{ }</code>
+		 * @param callBack - Function 服务返回的处理方法，如 <code>function onGetFriends(response:Object):void{}</code>
 		 * @throws Error serviceName can not be null or ""
 		 * @throws Error Please initialize GDP by GDP.instance.init(this)
 		 * @see http://doc.xingcloud.com/pages/viewpage.action?pageId=4195455 行云GDP在线文档
